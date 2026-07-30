@@ -96,6 +96,30 @@ function Courses() {
   setShowModal(true);
 }
 
+    async function deleteCourse(id) {
+        const confirmed = window.confirm(
+            "Are you sure you want to delete this course?"
+        );
+
+         if (!confirmed) return;
+
+        try {
+            await api.delete(`/courses/${id}`);
+
+            loadCourses();
+
+            alert("Course deleted successfully!");
+        }   catch (err) {
+            console.error("Delete error:", err);
+            console.error("Response:", err.response);
+
+            alert(
+                err.response?.data?.message ||
+                `HTTP ${err.response?.status}` ||
+                "Unknown error"
+            );
+         }
+    }
   return (
     <Layout>
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -138,8 +162,11 @@ function Courses() {
                   Edit
                 </button>
 
-                <button className="btn btn-danger btn-sm">
-                  Delete
+                <button 
+                    className="btn btn-danger btn-sm"
+                    onClick={() => deleteCourse(course.id)}
+                >
+                    Delete
                 </button>
               </td>
             </tr>
