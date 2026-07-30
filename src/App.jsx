@@ -9,13 +9,17 @@ import Courses from "./pages/Courses";
 import Departments from "./pages/Departments";
 import Enrollments from "./pages/Enrollments";
 import NotFound from "./pages/NotFound";
+import Profile from "./pages/Profile";
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
 
-      <Route path="/login" element={<Login />} />
+      <Route 
+      path="/login" 
+      element={
+      <Login />} />
 
       <Route path="/register" element={<Register />} />
 
@@ -26,11 +30,41 @@ function App() {
           <Dashboard />
         </ProtectedRoute>} />
 
-      <Route path="/courses" element={<Courses />} />
+      <Route 
+      path="/courses" 
+      element={
+        <ProtectedRoute>
+          <Courses />
+        </ProtectedRoute>
+      } 
+      />
 
-      <Route path="/departments" element={<Departments />} />
+      <Route 
+      path="/departments" 
+      element={
+        <ProtectedRoute>
+          <Departments />
+        </ProtectedRoute>
+      } 
+      />
 
-      <Route path="/enrollments" element={<Enrollments />} />
+      <Route 
+      path="/enrollments" 
+      element={
+        <ProtectedRoute>
+          <Enrollments />
+        </ProtectedRoute>
+      } 
+      />
+
+      <Route
+      path="/profile"
+      element={
+        <ProtectedRoute>
+          <Profile />
+        </ProtectedRoute>
+      }
+      />
 
       <Route path="*" element={<NotFound />} />
     </Routes>
