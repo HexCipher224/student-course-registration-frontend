@@ -6,6 +6,7 @@ function Courses() {
   const [courses, setCourses] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [editingId, setEditingId] = useState(null);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -48,9 +49,15 @@ function Courses() {
   e.preventDefault();
 
   try {
+     if (editingId) {
+    await api.put(`/courses/${editingId}`, formData);
+  } else {
     await api.post("/courses/", formData);
+  }
 
     setShowModal(false);
+
+    setEditingId(null);
 
     setFormData({
       title: "",
@@ -74,6 +81,20 @@ function Courses() {
 
     }
   }
+
+  function editCourse(course) {
+    setEditingId(course.id);
+
+    setFormData({
+        title: course.title,
+        code: course.code,
+        credits: course.credits,
+        description: course.description,
+     department_id: course.department_id,
+    });
+
+  setShowModal(true);
+}
 
   return (
     <Layout>
@@ -110,7 +131,10 @@ function Courses() {
               <td>{course.department_id}</td>
 
               <td>
-                <button className="btn btn-warning btn-sm me-2">
+                <button 
+                className="btn btn-warning btn-sm me-2"
+                onClick={()=> editCourse(course)}
+                >
                   Edit
                 </button>
 
@@ -134,7 +158,9 @@ function Courses() {
                     <form onSubmit={handleSubmit}>
 
                         <div className="modal-header">
-                            <h5>Add Course</h5>
+                            <h5>
+                                  {editingId ? "Edit Course" : "Add Course"}
+                            </h5>
 
                             <button
                                 type="button"
@@ -203,7 +229,9 @@ function Courses() {
                             <button
                                 type="button"
                                 className="btn btn-secondary"
-                                onClick={() => setShowModal(false)}
+                                onClick={() => {setShowModal(false);
+                                setEditingId(null);
+                            }}
                             >
                                 Cancel
                             </button>
@@ -212,7 +240,7 @@ function Courses() {
                                 className="btn btn-primary"
                                 type="submit"
                             >
-                                Save Course
+                                {editingId ? "Update Course" : "Save Course"}
                             </button>
 
                         </div>
