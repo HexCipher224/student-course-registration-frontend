@@ -56,7 +56,60 @@ function Enrollments() {
       [e.target.name]: e.target.value,
     });
   }
+  function editEnrollment(enrollment) {
+      setEditingId(enrollment.id);
 
+      setFormData({
+        user_id: enrollment.user_id,
+        course_id: enrollment.course_id,
+        semester: enrollment.semester,
+        status: enrollment.status,
+      });
+
+      setShowModal(true);
+    }
+
+    async function handleSubmit(e) {
+      e.preventDefault();
+
+      try {
+        if (editingId) {
+          await api.put(`/enrollments/${editingId}`, {
+            status: formData.status,
+          });
+        } else {
+          await api.post("/enrollments/", formData);
+        }
+
+        setShowModal(false);
+        setEditingId(null);
+
+        setFormData({
+          user_id: "",
+          course_id: "",
+          semester: "",
+          status: "Active",
+        });
+
+        loadEnrollments();
+      } catch (err) {
+        console.error(err);
+        alert(err.response?.data?.message || "Unable to save enrollment.");
+      }
+    }
+
+    async function deleteEnrollment(id) {
+      if (!window.confirm("Delete this enrollment?")) return;
+
+      try {
+        await api.delete(`/enrollments/${id}`);
+        loadEnrollments();
+        alert("Enrollment deleted successfully.");
+      } catch (err) {
+        console.error(err);
+        alert(err.response?.data?.message || "Unable to delete enrollment.");
+      }
+    }
   return (
     <Layout>
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -64,9 +117,19 @@ function Enrollments() {
 
         <button
           className="btn btn-primary"
-          onClick={() => setShowModal(true)}
+          onClick={() => {
+            setEditingId(null);
+          
+            setFormData({
+              user_id: "",
+              course_id: "",
+              semester: "",
+              status: "Active",
+            });
+            setShowModal(true);
+          }}
         >
-          Add Enrollment
+          Add Enrollmen
         </button>
       </div>
 
@@ -78,6 +141,7 @@ function Enrollments() {
             <th>Course</th>
             <th>Semester</th>
             <th>Status</th>
+            <th width="180">Actions</th>
           </tr>
         </thead>
 
@@ -85,10 +149,25 @@ function Enrollments() {
           {enrollments.map((enrollment) => (
             <tr key={enrollment.id}>
               <td>{enrollment.id}</td>
-              <td>{enrollment.user_id}</td>
-              <td>{enrollment.course_id}</td>
+              <td>{enrollment.user_name}</td>
+              <td>{enrollment.course_title}</td>
               <td>{enrollment.semester}</td>
               <td>{enrollment.status}</td>
+              <td>
+                <button
+                    className="btn btn-warning btn-sm me-2"
+                    onClick={() => editEnrollment(enrollment)}
+                 >
+                    Edit
+                  </button>
+
+                 <button
+                    className="btn btn-danger btn-sm"
+                    onClick={() => deleteEnrollment(enrollment.id)}
+                 >
+                   Delete
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
@@ -103,7 +182,7 @@ function Enrollments() {
             <div className="modal-content">
 
               <div className="modal-header">
-                <h5>Add Enrollment</h5>
+                <h5> {editingId ? "Edit Enrollment" : "Add Enrollment"}</h5>
 
                 <button
                   className="btn-close"
@@ -111,7 +190,7 @@ function Enrollments() {
                 />
               </div>
 
-              <form>
+              <form onSubmit={handleSubmit}>
                 <div className="modal-body">
 
                   <select
@@ -119,12 +198,13 @@ function Enrollments() {
                     name="user_id"
                     value={formData.user_id}
                     onChange={handleChange}
+                    disabled={editingId}
                   >
                     <option value="">Select Student</option>
 
                     {students.map((student) => (
                       <option key={student.id} value={student.id}>
-                        {student.name || student.email}
+                        {student.first_name || student.last_name}
                       </option>
                     ))}
                   </select>
@@ -179,7 +259,7 @@ function Enrollments() {
                     type="submit"
                     className="btn btn-primary"
                   >
-                    Save Enrollment
+                    {editingId ? "Update Enrollment" : "Save Enrollment"}
                   </button>
 
                 </div>
