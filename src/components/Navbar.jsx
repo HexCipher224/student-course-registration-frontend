@@ -1,6 +1,6 @@
 import { useAuth } from "../context/AuthContext";
 
-function Navbar() {
+function Navbar({ theme, toggleTheme}) {
   const { user, logout } = useAuth();
 
   return (
@@ -19,6 +19,12 @@ function Navbar() {
           onClick={logout}
         >
           Logout
+        </button>
+        <button
+          className="btn btn-outline-light ms-2"
+          onClick={toggleTheme}
+        >
+          {theme === "light" ? "🌙" : "☀️"}
         </button>
       </div>
     </nav>
